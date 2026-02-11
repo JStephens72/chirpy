@@ -24,6 +24,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		CreatedAt    time.Time `json:"created_at"`
 		UpdatedAt    time.Time `json:"updated_at"`
 		Email        string    `json:"email"`
+		IsChirpyRed  bool      `json:"is_chirpy_red"`
 		Token        string    `json:"token"`
 		RefreshToken string    `json:"refresh_token"`
 	}
@@ -62,8 +63,8 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 	}
 
 	createRefreshTokenParams := database.CreateRefreshTokenParams{
-		Token:  rt,
-		UserID: user.ID,
+		Token:     rt,
+		UserID:    user.ID,
 		ExpiresAt: time.Now().Add(60 * 24 * time.Hour),
 	}
 
@@ -78,6 +79,7 @@ func (cfg *apiConfig) handlerLogin(w http.ResponseWriter, r *http.Request) {
 		CreatedAt:    user.CreatedAt,
 		UpdatedAt:    user.UpdatedAt,
 		Email:        user.Email,
+		IsChirpyRed:  user.IsChirpyRed,
 		Token:        userJWT,
 		RefreshToken: refreshToken.Token,
 	}

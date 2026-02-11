@@ -16,6 +16,7 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
 	serverSecret   string
+	apiKey         string
 }
 
 func main() {
@@ -31,6 +32,10 @@ func main() {
 	if secret == "" {
 		log.Fatal("JWT_SECRET environment variable is not set")
 	}
+	apiKey := os.Getenv("POLKA_KEY")
+	if secret == "" {
+		log.Fatal("POLKA_KEY environment variable is not set")
+	}
 
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
@@ -42,6 +47,7 @@ func main() {
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
 		serverSecret:   secret,
+		apiKey:         apiKey,
 	}
 
 	mux := http.NewServeMux()
@@ -65,6 +71,8 @@ func main() {
 
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerReset)
 	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerMetrics)
+
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerPolkaWH)
 
 	srv := &http.Server{
 		Addr:    ":" + port,
